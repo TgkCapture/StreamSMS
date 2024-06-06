@@ -12,3 +12,7 @@ def sms_webhook(request):
         Message.objects.create(from_number=from_number, message_body=message_body, approved=False)
         return HttpResponse("Message received", status=200)
     return HttpResponse(status=405)
+
+def moderation_interface(request):
+    messages = Message.objects.filter(approved=False)
+    return render(request, 'messages/moderation.html', {'messages': messages})
