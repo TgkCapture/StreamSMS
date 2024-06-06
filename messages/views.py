@@ -22,3 +22,24 @@ def approve_message(request, message_id):
     message.approved = True
     message.save()
     return redirect('moderation_interface')
+
+def generate_rss(request):
+    approved_messages = Message.objects.filter(approved=True)
+    rss_feed = '<?xml version="1.0" encoding="UTF-8" ?>'
+    rss_feed += '<rss version="2.0">'
+    rss_feed += '<channel>'
+    rss_feed += '<title>Approved Messages</title>'
+    rss_feed += '<link>http://yourserver.com/rss</link>'
+    rss_feed += '<description>Approved SMS messages</description>'
+    
+    for message in approved_messages:
+        rss_feed += '<item>'
+        rss_feed += f'<title>{message.from_number}</title>'
+        rss_feed += f'<description>{message.message_body}</description>'
+        rss_feed += f'<pubDate>{datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")}</pubDate>'
+        rss_feed += '</item>'
+    
+    rss_feed += '</channel>'
+    rss_feed += '</rss>'
+    
+    return HttpResponse(rss_feed, content_type='application/rss+xml')
