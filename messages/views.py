@@ -16,3 +16,9 @@ def sms_webhook(request):
 def moderation_interface(request):
     messages = Message.objects.filter(approved=False)
     return render(request, 'messages/moderation.html', {'messages': messages})
+
+def approve_message(request, message_id):
+    message = Message.objects.get(id=message_id)
+    message.approved = True
+    message.save()
+    return redirect('moderation_interface')
