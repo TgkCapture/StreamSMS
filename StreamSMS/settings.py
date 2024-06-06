@@ -55,7 +55,7 @@ ROOT_URLCONF = 'StreamSMS.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'StreamSMS' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
