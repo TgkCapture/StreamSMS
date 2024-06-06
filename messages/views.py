@@ -36,7 +36,7 @@ def generate_rss(request):
         rss_feed += '<item>'
         rss_feed += f'<title>{message.from_number}</title>'
         rss_feed += f'<description>{message.message_body}</description>'
-        rss_feed += f'<pubDate>{datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")}</pubDate>'
+        rss_feed += f'<pubDate>{datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")}</pubDate>'
         rss_feed += '</item>'
     
     rss_feed += '</channel>'
