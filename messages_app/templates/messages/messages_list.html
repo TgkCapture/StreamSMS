@@ -64,17 +64,20 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                Approve or Decline this message.
+                                Are you sure you want to moderate this message?
                             </div>
                             <div class="modal-footer">
-                                <form method="post" action="{% url 'approve_message' message.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-success">Approve</button>
-                                </form>
-                                <form method="post" action="{% url 'decline_message' message.id %}">
+                                {% if message.approved %}
+                                <form method="post" action="{% url 'decline_message' message.id %}" id="declineForm{{ message.id }}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">Decline</button>
                                 </form>
+                                {% else %}
+                                <form method="post" action="{% url 'approve_message' message.id %}" id="approveForm{{ message.id }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Approve</button>
+                                </form>
+                                {% endif %}
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
