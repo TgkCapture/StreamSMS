@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Message
@@ -47,3 +47,7 @@ def generate_rss(request):
 def messages_list(request):
     messages = Message.objects.all()
     return render(request, 'messages/messages_list.html', {'messages': messages})
+
+def message_detail(request):
+    message = get_object_or_404(Message, id=id)
+    return render(request, 'messages/message_detail.html', {'message': message})
