@@ -43,3 +43,7 @@ def generate_rss(request):
     rss_feed += '</rss>'
     
     return HttpResponse(rss_feed, content_type='application/rss+xml')
+
+def messages_list(request):
+    messages = Message.objects.all()
+    return render(request, 'messages/messages_list.html', {'messages': messages})
