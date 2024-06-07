@@ -37,7 +37,7 @@ def generate_rss(request):
             'sender': message.from_number,
             'message': message.message_body,
             'link': f"http://127.0.0.1:8000/messages/{message.id}",
-            # 'pubDate': datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
+            'pubDate': message.created_at.strftime("%a, %d %b %Y %H:%M:%S +0000")
         })
     
     rss_feed_json = {
