@@ -23,13 +23,18 @@ def approve_message(request, message_id):
     message.save()
     return redirect('moderation_interface')
 
+def decline_message(request, id):
+    message = get_object_or_404(Message, id=id)
+    message.delete()
+    return redirect('moderation_interface')
+
 def generate_rss(request):
     approved_messages = Message.objects.filter(approved=True)
     rss_feed = '<?xml version="1.0" encoding="UTF-8" ?>'
     rss_feed += '<rss version="2.0">'
     rss_feed += '<channel>'
     rss_feed += '<title>Approved Messages</title>'
-    rss_feed += '<link>http://yourserver.com/rss</link>'
+    rss_feed += '<link>http://127.0.0.1:8000/messages/rss</link>'
     rss_feed += '<description>Approved SMS messages</description>'
     
     for message in approved_messages:
