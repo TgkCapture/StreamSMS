@@ -53,6 +53,6 @@ def messages_list(request):
     messages = Message.objects.all()
     return render(request, 'messages/messages_list.html', {'messages': messages})
 
-def message_detail(request):
+def message_detail(request, id):
     message = get_object_or_404(Message, id=id)
     return render(request, 'messages/message_detail.html', {'message': message})

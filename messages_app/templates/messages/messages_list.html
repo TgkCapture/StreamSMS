@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages List</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .action-buttons form {
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -23,12 +32,27 @@
                 {% for message in messages %}
                 <tr>
                     <td>{{ message.id }}</td>
-                    <td>{{ message.content }}</td>
-                    <td>{{ message.sender }}</td>
-                    <td>{{ message.get_status_display }}</td>
+                    <td>{{ message.message_body }}</td>
+                    <td>{{ message.from_number }}</td>
                     <td>
-                        <a href="{% url 'message_detail' message.id %}" class="btn btn-info btn-sm">View</a>
-                        <a href="{% url 'moderation_interface' %}" class="btn btn-success btn-sm">Moderate</a>
+                        {% if message.approved %}
+                            <span style="color: green;">Approved</span>
+                        {% else %}
+                            <span style="color: red;">Declined</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td>
+                        <div class="action-buttons">
+                            <form method="post" action="{% url 'message_detail' message.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-info btn-sm">View</button>
+                            </form>
+                            <form method="post" action="{% url 'moderation_interface' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning btn-sm">Moderate</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
