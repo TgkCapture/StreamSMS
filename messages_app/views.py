@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from .models import Message
 import datetime
 
@@ -13,16 +14,19 @@ def sms_webhook(request):
         return HttpResponse("Message received", status=200)
     return HttpResponse(status=405)
 
+@login_required
 def moderation_interface(request):
     messages = Message.objects.filter(approved=False)
     return render(request, 'messages/moderation.html', {'messages': messages})
 
+@login_required
 def approve_message(request, message_id):
     message = Message.objects.get(id=message_id)
     message.approved = True
     message.save()
     return redirect('moderation_interface')
 
+@login_required
 def decline_message(request, id):
     message = get_object_or_404(Message, id=id)
     message.delete()
@@ -52,10 +56,12 @@ def generate_rss(request):
     
     return JsonResponse(rss_feed_json)
 
+@login_required
 def messages_list(request):
     messages = Message.objects.all()
     return render(request, 'messages/messages_list.html', {'messages': messages})
 
+@login_required
 def message_detail(request, id):
     message = get_object_or_404(Message, id=id)
     return render(request, 'messages/message_detail.html', {'message': message})
