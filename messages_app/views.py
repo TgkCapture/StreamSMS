@@ -4,14 +4,17 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .models import Message
 import datetime
+import africastalking
 
 @csrf_exempt
-def sms_webhook(request):
+def africastalking_webhook(request):
     if request.method == 'POST':
-        from_number = request.POST.get('From')
-        message_body = request.POST.get('Body')
-        Message.objects.create(from_number=from_number, message_body=message_body, approved=False)
-        return HttpResponse("Message received", status=200)
+        from_number = request.POST.get('from')
+        message_body = request.POST.get('text')
+
+        Message.objects.create(from_number=from_number, message_body=message_body)
+
+        return HttpResponse("Your message has been received and is pending moderation.")
     return HttpResponse(status=405)
 
 @login_required
