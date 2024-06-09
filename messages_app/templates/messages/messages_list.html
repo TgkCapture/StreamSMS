@@ -37,19 +37,26 @@
                     <td>
                         {% if message.approved %}
                             <span style="color: green;">Approved</span>
-                        {% else %}
+                        {% elif message.declined %}
                             <span style="color: red;">Declined</span>
+                        {% else %}
+                            <span style="color: orange;">Pending</span>
                         {% endif %}
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <form method="post" action="{% url 'message_detail' message.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-info btn-sm">View</button>
-                            </form>
-                            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#moderateModal{{ message.id }}">
-                                Moderate
-                            </button>
+                            {% if not message.approved %}
+                                <form method="post" action="{% url 'approve_message' message.id %}?next={{ request.path }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </form>
+                            {% endif %}
+                            {% if not message.declined %}
+                                <form method="post" action="{% url 'decline_message' message.id %}?next={{ request.path }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                                </form>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
