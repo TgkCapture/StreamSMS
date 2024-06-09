@@ -41,18 +41,14 @@ def generate_rss(request):
 
     for message in approved_messages:
         items.append({
-            'sender': message.from_number,
+            'from': message.from_number,
             'message': message.message_body,
-            'link': f"http://127.0.0.1:8000/messages/{message.id}",
-            'pubDate': message.created_at.strftime("%a, %d %b %Y %H:%M:%S +0000")
+            'pubDate': message.created_at.strftime("%a, %d %b %Y %H:%M")
         })
     
     rss_feed_json = {
         'version': '2.0',
         'channel': {
-            'title': 'Approved Messages',
-            'link': 'http://127.0.0.1:8000/messages/rss',
-            'description': 'Approved SMS messages',
             'items': items
         }
     }
