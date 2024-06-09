@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -19,7 +20,12 @@ def africastalking_webhook(request):
 
 @login_required
 def moderation_interface(request):
-    messages = Message.objects.filter(approved=False)
+    messages_list = Message.objects.filter(approved=False, declined=False)
+    paginator = Paginator(messages_list, 15)
+
+    page_number = request.GET.get('page')
+    messages = paginator.get_page(page_number)
+    
     return render(request, 'messages/moderation.html', {'messages': messages})
 
 @login_required
@@ -64,9 +70,13 @@ def generate_rss(request):
 
 @login_required
 def messages_list(request):
-    messages = Message.objects.all()
-    return render(request, 'messages/messages_list.html', {'messages': messages})
+    messages_list = Message.objects.all()
+    paginator = Paginator(messages_list, 13)
 
+    page_number = request.GET.get('page')
+    messages = paginator.get_page(page_number)
+    
+    return render(request, 'messages/messages_list.html', {'messages': messages})
 @login_required
 def message_detail(request, id):
     message = get_object_or_404(Message, id=id)
