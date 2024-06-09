@@ -35,13 +35,18 @@ def decline_message(request, id):
     message.delete()
     return redirect('moderation_interface')
 
+def mask_phone_number(phone_number):
+    
+    return f"{phone_number[:5]}** ** {phone_number[-2:]}"
+
 def generate_rss(request):
     approved_messages = Message.objects.filter(approved=True)
     items = []
 
     for message in approved_messages:
+        masked_number = mask_phone_number(message.from_number)
         items.append({
-            'from': message.from_number,
+            'from': masked_number,
             'message': message.message_body,
             'pubDate': message.created_at.strftime("%a, %d %b %Y %H:%M")
         })
