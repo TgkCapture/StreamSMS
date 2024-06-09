@@ -34,7 +34,7 @@
                 <tr>
                     <td>{{ message.id }}</td>
                     <td>{{ message.from_number }}</td>
-                    <td>{{ message.message_body }}</td>
+                    <td><a href="{% url 'message_detail' message.id %}">{{ message.message_body|truncatechars_html:150 }}</a></td>
                     <td>
                         <div class="action-buttons">
                             <form method="post" action="{% url 'approve_message' message.id %}">

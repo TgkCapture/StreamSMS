@@ -34,7 +34,7 @@
                 {% for message in messages %}
                 <tr>
                     <td>{{ message.id }}</td>
-                    <td>{{ message.message_body }}</td>
+                    <td><a href="{% url 'message_detail' message.id %}">{{ message.message_body|truncatechars_html:100 }}</a></td>
                     <td>{{ message.from_number }}</td>
                     <td>
                         {% if message.approved %}
