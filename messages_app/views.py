@@ -27,13 +27,15 @@ def approve_message(request, message_id):
     message = Message.objects.get(id=message_id)
     message.approved = True
     message.save()
-    return redirect('moderation_interface')
+    next_page = request.GET.get('next', 'moderation_interface')
+    return redirect(next_page)
 
 @login_required
 def decline_message(request, id):
     message = get_object_or_404(Message, id=id)
     message.delete()
-    return redirect('moderation_interface')
+    next_page = request.GET.get('next', 'moderation_interface')
+    return redirect(next_page)
 
 def mask_phone_number(phone_number):
     
