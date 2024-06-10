@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">User Profile</h1>
+        <div class="card">
+            <div class="card-header">
+                Profile Details
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ user.username }}</h5>
+                <p class="card-text"><strong>Email:</strong> {{ user.email }}</p>
+                <p class="card-text"><strong>First name:</strong> {{ user.first_name }}</p>
+                <p class="card-text"><strong>Last name:</strong> {{ user.last_name }}</p>
+            </div>
+        </div>
+
+        <!--
+        <div class="card mt-3">
+            <div class="card-header">
+                Settings
+            </div>
+            <div class="card-body">
+               
+            </div>
+        </div>
+        -->
+
+        <div class="card mt-3">
+            <div class="card-header">
+                Groups
+            </div>
+            <div class="card-body">
+                <ul>
+                    {% for group in user.groups.all %}
+                        <li>{{ group.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                Permissions
+            </div>
+            <div class="card-body">
+                <ul>
+                    {% for perm in user.user_permissions.all %}
+                        <li>{{ perm.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

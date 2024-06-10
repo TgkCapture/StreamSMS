@@ -1,11 +1,10 @@
 from django.urls import path
-from .views import moderation_interface, approve_message, generate_rss, messages_list, message_detail, decline_message
+from .views import moderation_interface, approve_message, messages_list, message_detail, decline_message
 
 urlpatterns = [
     path('moderate/', moderation_interface, name='moderation_interface'),
     path('approve/<int:message_id>/', approve_message, name='approve_message'),
     path('decline/<int:id>/', decline_message, name='decline_message'),
-    path('rss/', generate_rss, name='generate_rss'),
     path('all-messages', messages_list, name='messages_list'),
     path('<int:id>/', message_detail, name='message_detail'),
 ]
