@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.utils.feedgenerator import Rss201rev2Feed
 from .models import Message
 import datetime
 import africastalking
@@ -47,7 +48,7 @@ def mask_phone_number(phone_number):
     
     return f"{phone_number[:5]}** ** {phone_number[-2:]}"
 
-def generate_rss(request):
+def generate_rss_json(request):
     approved_messages = Message.objects.filter(approved=True)
     items = []
 
@@ -68,6 +69,28 @@ def generate_rss(request):
     
     return JsonResponse(rss_feed_json)
 
+def generate_rss(request):
+    approved_messages = Message.objects.filter(approved=True)
+    feed = Rss201rev2Feed(
+        title="Approved Messages",
+        link="http://127.0.0.1:8000/messages/rss",
+        description="Approved SMS messages",
+        language="en",
+    )
+
+    for message in approved_messages:
+        masked_number = mask_phone_number(message.from_number)
+        feed.add_item(
+            title=masked_number,
+            link=f"http://127.0.0.1:8000/messages/{message.id}",
+            description=message.message_body,
+            pubdate=message.created_at,
+        )
+    
+    response = HttpResponse(content_type='application/rss+xml')
+    feed.write(response, 'utf-8')
+    return response
+
 @login_required
 def messages_list(request):
     messages_list = Message.objects.all().order_by('-created_at')
@@ -77,6 +100,7 @@ def messages_list(request):
     messages = paginator.get_page(page_number)
     
     return render(request, 'messages/messages_list.html', {'messages': messages})
+
 @login_required
 def message_detail(request, id):
     message = get_object_or_404(Message, id=id)
