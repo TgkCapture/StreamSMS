@@ -20,6 +20,7 @@
     {% include 'messages/navbar.html' %}
     <div class="container">
         <h1 class="mt-5">Moderation Interface</h1>
+        {% if messages %}
         <table class="table">
             <thead>
                 <tr>
@@ -84,6 +85,11 @@
                 {% endif %}
             </ul>
         </nav>
+        {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            Nothing here, please refresh.
+        </div>
+        {% endif %}
     </div>
     {% include 'messages/footer.html' %}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
