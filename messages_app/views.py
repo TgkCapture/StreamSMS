@@ -91,6 +91,22 @@ def generate_rss(request):
     feed.write(response, 'utf-8')
     return response
 
+def generate_concatenated_rss_json(request):
+    approved_messages = Message.objects.filter(approved=True)
+    concatenated_messages = ' | '.join(
+        [f"{mask_phone_number(message.from_number)} - {message.message_body}" for message in approved_messages]
+    )
+
+    rss_feed_json = {
+        'version': '2.0',
+        'channel': {
+            'title': 'Approved Messages Feed',
+            'description': concatenated_messages,
+        }
+    }
+
+    return JsonResponse(rss_feed_json)
+
 @login_required
 def messages_list(request):
     messages_list = Message.objects.all().order_by('-created_at')

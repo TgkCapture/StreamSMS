@@ -20,7 +20,8 @@
     {% include 'messages/navbar.html' %}
     <div class="container">
         <h1 class="mt-5">Messages List</h1>
-        <table class="table">
+        {% if messages %}
+        <table class="table table-responsive">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -98,6 +99,11 @@
                 {% endif %}
             </ul>
         </nav>
+        {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No messages available. Please refresh the page.
+        </div>
+        {% endif %}
     </div>
     {% include 'messages/footer.html' %}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
