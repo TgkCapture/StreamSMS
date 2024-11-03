@@ -1,7 +1,7 @@
 import os
 import django
-import mysql.connector
-from mysql.connector import errorcode
+import psycopg2
+from psycopg2 import sql, OperationalError
 from datetime import datetime
 import random
 from django.utils.crypto import get_random_string
@@ -19,55 +19,58 @@ DB_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DB_HOST = os.environ.get('DATABASE_HOST')
 DB_PORT = os.environ.get('DATABASE_PORT')
 
-def connect_to_mysql_server():
+def connect_to_postgresql_server():
     """
-    Attempts to connect to the MySQL server.
+    Attempts to connect to the PostgreSQL server.
     """
     try:
-        cnx = mysql.connector.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
-        cursor = cnx.cursor()
-        print("Connected to MySQL server.")
-        return cnx, cursor
-    except mysql.connector.Error as err:
+        conn = psycopg2.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
+        print("Connected to PostgreSQL server.")
+        return conn
+    except OperationalError as err:
         print(err)
-        return None, None
+        return None
 
-def create_database(cnx, cursor):
+def create_database(conn):
     """
-    Creates the database
+    Creates the database.
     """
     try:
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME} DEFAULT CHARACTER SET 'utf8'")
-        print(f"Database '{DB_NAME}' checked/created successfully.")
-    except mysql.connector.Error as err:
+        with conn.cursor() as cursor:
+            cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(DB_NAME)))
+            conn.commit()
+            print(f"Database '{DB_NAME}' checked/created successfully.")
+    except OperationalError as err:
         print(f"Failed creating database: {err}")
         exit(1)
 
 def connect_to_database():
     """
-    Connects to the MySQL server and database, creating the database if it doesn't exist.
+    Connects to the PostgreSQL server and database, creating the database if it doesn't exist.
     """
-    cnx, cursor = connect_to_mysql_server()
-    if cnx and cursor:
+    conn = connect_to_postgresql_server()
+    if conn:
         try:
-            cnx.database = DB_NAME
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(f"Database '{DB_NAME}' does not exist. Creating it...")
-                create_database(cnx, cursor)
-                cnx.database = DB_NAME
-            else:
-                print(err)
-                return None, None
+            conn.autocommit = True  # Enable autocommit mode
+            conn.set_isolation_level(0)  # Set isolation level to AUTOCOMMIT
+            with conn.cursor() as cursor:
+                cursor.execute(f"SELECT 1 FROM pg_database WHERE datname = '{DB_NAME}'")
+                if cursor.fetchone() is None:
+                    print(f"Database '{DB_NAME}' does not exist. Creating it...")
+                    create_database(conn)
+        except OperationalError as err:
+            print(err)
+            return None
+        conn.set_isolation_level(1)  # Reset to default isolation level
         print(f"Connected to database '{DB_NAME}'.")
-        return cnx, cursor
-    return None, None
+        return conn
+    return None
 
 # Connect to the database
-cnx, cursor = connect_to_database()
+conn = connect_to_database()
 
-if cnx is None or cursor is None:
-    print("Failed to connect to MySQL server or create database. Exiting.")
+if conn is None:
+    print("Failed to connect to PostgreSQL server or create database. Exiting.")
     exit(1)
 
 # Populate the database with dummy data
@@ -87,6 +90,5 @@ def populate_dummy_data():
 # Run the function
 populate_dummy_data()
 
-# Close the cursor and connection
-cursor.close()
-cnx.close()
+# Close the connection
+conn.close()
