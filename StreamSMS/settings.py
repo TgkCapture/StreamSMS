@@ -71,7 +71,7 @@ WSGI_APPLICATION = 'StreamSMS.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql' if os.environ.get('DATABASE_BACKEND') == 'postgres' else 'django.db.backends.mysql',
         'NAME': os.environ.get('DATABASE_NAME'),
         'USER': os.environ.get('DATABASE_USER'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
