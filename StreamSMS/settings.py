@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'messages_app',
     'simple_history',
+    'nominations',
 ]
 
 MIDDLEWARE = [
