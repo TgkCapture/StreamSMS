@@ -1,6 +1,8 @@
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import MainCategory, NominationCategory, Nominee, Vote
+from .forms import NomineeForm, VoteForm
 
 @csrf_exempt 
 def ussd_handler(request):
@@ -51,3 +53,28 @@ def ussd_handler(request):
 
         return HttpResponse(response_text, content_type='text/plain')
         return HttpResponse(response_text, content_type='text/plain')
+
+def nominate(request):
+    if request.method == 'POST':
+        form = NomineeForm(request.POST)
+        if form.is_valid():
+            nominee = form.save(commit=False)
+            nominee.approved = False
+            nominee.save()
+            return redirect('nomination_success')
+    else:
+        form = NomineeForm()
+    
+    return render(request, 'nominations/nominate.html', {'form': form})
+
+def vote(request):
+    if request.method == 'POST':
+        form = VoteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('vote_success')
+    else:
+        form = VoteForm()
+    
+    nominees = Nominee.objects.filter(approved=True)
+    return render(request, 'nominations/vote.html', {'form': form, 'nominees': nominees})
