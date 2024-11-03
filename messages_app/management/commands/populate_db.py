@@ -1,10 +1,9 @@
 import os
 import django
-import mysql.connector
-from mysql.connector import errorcode
-from datetime import datetime
 import random
+from datetime import datetime
 from django.utils.crypto import get_random_string
+from django.db import connection
 
 # Set up Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "StreamSMS.settings")
@@ -13,62 +12,40 @@ django.setup()
 from messages_app.models import Message
 
 # Database configuration
+DB_BACKEND = os.environ.get('DATABASE_BACKEND')
 DB_NAME = os.environ.get('DATABASE_NAME')
 DB_USER = os.environ.get('DATABASE_USER')
 DB_PASSWORD = os.environ.get('DATABASE_PASSWORD')
 DB_HOST = os.environ.get('DATABASE_HOST')
 DB_PORT = os.environ.get('DATABASE_PORT')
 
-def connect_to_mysql_server():
+def create_database_if_not_exists():
     """
-    Attempts to connect to the MySQL server.
+    Connects to the server and creates the database if it doesn't exist.
     """
-    try:
-        cnx = mysql.connector.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
-        cursor = cnx.cursor()
-        print("Connected to MySQL server.")
-        return cnx, cursor
-    except mysql.connector.Error as err:
-        print(err)
-        return None, None
+    db_exists = False
+    
+    with connection.cursor() as cursor:
+        if DB_BACKEND == 'postgres':
+            cursor.execute(f"SELECT 1 FROM pg_database WHERE datname = %s", [DB_NAME])
+            db_exists = cursor.fetchone() is not None
+            if not db_exists:
+                cursor.execute(f"CREATE DATABASE {DB_NAME}")
+                print(f"Database '{DB_NAME}' created successfully.")
+        elif DB_BACKEND == 'mysql':
+            cursor.execute(f"SHOW DATABASES LIKE '{DB_NAME}'")
+            db_exists = cursor.fetchone() is not None
+            if not db_exists:
+                cursor.execute(f"CREATE DATABASE {DB_NAME}")
+                print(f"Database '{DB_NAME}' created successfully.")
 
-def create_database(cnx, cursor):
-    """
-    Creates the database
-    """
-    try:
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME} DEFAULT CHARACTER SET 'utf8'")
+    if not db_exists:
         print(f"Database '{DB_NAME}' checked/created successfully.")
-    except mysql.connector.Error as err:
-        print(f"Failed creating database: {err}")
-        exit(1)
+    else:
+        print(f"Database '{DB_NAME}' already exists.")
 
-def connect_to_database():
-    """
-    Connects to the MySQL server and database, creating the database if it doesn't exist.
-    """
-    cnx, cursor = connect_to_mysql_server()
-    if cnx and cursor:
-        try:
-            cnx.database = DB_NAME
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(f"Database '{DB_NAME}' does not exist. Creating it...")
-                create_database(cnx, cursor)
-                cnx.database = DB_NAME
-            else:
-                print(err)
-                return None, None
-        print(f"Connected to database '{DB_NAME}'.")
-        return cnx, cursor
-    return None, None
-
-# Connect to the database
-cnx, cursor = connect_to_database()
-
-if cnx is None or cursor is None:
-    print("Failed to connect to MySQL server or create database. Exiting.")
-    exit(1)
+# Create database if it doesn't exist
+create_database_if_not_exists()
 
 # Populate the database with dummy data
 def populate_dummy_data():
@@ -86,7 +63,3 @@ def populate_dummy_data():
 
 # Run the function
 populate_dummy_data()
-
-# Close the cursor and connection
-cursor.close()
-cnx.close()
