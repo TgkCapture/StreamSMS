@@ -12,7 +12,7 @@ def vote(request):
     
     if not session:
         messages.info(request, "There is currently no active voting session.")
-        return redirect('home')
+        return redirect('homepage')
     
     if request.method == 'POST':
         form = VoteForm(request.POST)
@@ -72,7 +72,7 @@ def results(request):
     session = VoteSession.objects.filter(active=True, start_time__lte=timezone.now(), end_time__gte=timezone.now()).first()
     if not session:
         messages.info(request, "No active voting session to show results for.")
-        return redirect('home')
+        return redirect('homepage')
     
     nominees = Nominee.objects.filter(vote__session=session).annotate(total_votes=Count('vote')).order_by('-total_votes')
     
