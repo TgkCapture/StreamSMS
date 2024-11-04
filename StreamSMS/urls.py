@@ -17,5 +17,6 @@ urlpatterns = [
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('africastalking-webhook/', africastalking_webhook, name='africastalking_webhook'),
     path('nominations/', include('nominations.urls')),
+    path('voting/', include('voting.urls')),
     
 ]
