@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'messages_app',
     'simple_history',
     'nominations',
+    'voting',
 ]
 
 MIDDLEWARE = [
