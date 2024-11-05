@@ -61,7 +61,7 @@ def nominate(request):
             nominee = form.save(commit=False)
             nominee.approved = False
             nominee.save()
-            return redirect('nomination_success')
+            return redirect('success')
     else:
         form = NomineeForm()
     
@@ -72,7 +72,7 @@ def vote(request):
         form = VoteForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('vote_success')
+            return redirect('success')
     else:
         form = VoteForm()
     
