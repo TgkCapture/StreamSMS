@@ -5,6 +5,7 @@ from nominations.models import Nominee
 from .forms import VoteForm
 from django.utils import timezone
 from django.http import JsonResponse
+from django.db.models import Count
 
 def vote(request):
     # Fetch the active voting session
