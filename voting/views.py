@@ -72,8 +72,7 @@ def results(request):
     # Fetch all nominees with their vote counts in the active session
     session = VoteSession.objects.filter(active=True, start_time__lte=timezone.now(), end_time__gte=timezone.now()).first()
     if not session:
-        messages.info(request, "No active voting session to show results for.")
-        return redirect('homepage')
+        return render(request, 'voting/no_active_session.html')
     
     nominees = Nominee.objects.filter(vote__session=session).annotate(total_votes=Count('vote')).order_by('-total_votes')
     
