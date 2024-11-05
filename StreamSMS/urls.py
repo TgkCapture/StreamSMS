@@ -4,6 +4,7 @@ from .views import homepage, profile
 from messages_app.views import generate_rss_json, generate_rss, generate_concatenated_rss_json
 from django.contrib.auth import views as auth_views
 from messages_app.views import africastalking_webhook
+from . import views
 
 urlpatterns = [
     path('', homepage, name='homepage'),
@@ -18,5 +19,6 @@ urlpatterns = [
     path('africastalking-webhook/', africastalking_webhook, name='africastalking_webhook'),
     path('nominations/', include('nominations.urls')),
     path('voting/', include('voting.urls')),
+    path('success/', views.success, name='success'),
     
 ]
