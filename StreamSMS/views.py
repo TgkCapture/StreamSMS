@@ -8,3 +8,6 @@ def homepage(request):
 def profile(request):
     user = request.user
     return render(request, 'profile.html', {'user': user})
+
+def success(request, message="Your action was successful!"):
+    return render(request, 'success.html', {'message': message})
