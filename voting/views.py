@@ -12,8 +12,8 @@ def vote(request):
     session = VoteSession.objects.filter(active=True, start_time__lte=timezone.now(), end_time__gte=timezone.now()).first()
     
     if not session:
-        messages.info(request, "There is currently no active voting session.")
-        return redirect('homepage')
+        # messages.info(request, "There is currently no active voting session.")
+        return render(request, 'voting/no_active_session.html')
     
     if request.method == 'POST':
         form = VoteForm(request.POST)
