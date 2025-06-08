@@ -20,7 +20,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /home/tgk/code-base/StreamSMS
-            source /home/tgk/code-base/venvs/streamsms/bin/activate
+            source /home/tgk/code-base/StreamSMS/venv/bin/activate
             git -C /home/tgk/code-base/Deployments/StreamSMS.git pull origin production
             pip install -r requirements.txt
             python manage.py migrate
