@@ -9,6 +9,16 @@ from .models import Message
 import datetime
 import africastalking
 
+@login_required
+def messages_home(request):
+    stats = {
+        'total_messages': Message.objects.count(),
+        'pending_messages': Message.objects.filter(approved=False, declined=False).count(),
+        'approved_messages': Message.objects.filter(approved=True).count(),
+        'declined_messages': Message.objects.filter(declined=True).count(),
+    }
+    return render(request, 'messages_app/home.html', {'stats': stats})
+
 @csrf_exempt
 def africastalking_webhook(request):
     if request.method == 'POST':
