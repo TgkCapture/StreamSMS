@@ -12,22 +12,17 @@
             <ul class="navbar-nav me-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'messages_app:messages_list' %}">
+                        <a class="nav-link" href="{% url 'messages_app:messages_home' %}">
                             <i class="bi bi-list-ul"></i> Messages
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'messages_app:moderation_interface' %}">
-                            <i class="bi bi-shield-check"></i> Moderation
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'nominations:nominate' %}">
+                        <a class="nav-link" href="{% url 'nominations:nominate_home' %}">
                             <i class="bi bi-award"></i> Nominations
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'voting:vote' %}">
+                        <a class="nav-link" href="{% url 'voting:vote_home' %}">
                             <i class="bi bi-check-circle"></i> Voting
                         </a>
                     </li>
