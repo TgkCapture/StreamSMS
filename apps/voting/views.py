@@ -10,6 +10,28 @@ from .models import VoteSession, Vote
 from .forms import VoteForm
 from apps.nominations.models import Nominee
 
+@login_required
+def vote_home(request):
+    active_session = VoteSession.objects.filter(
+        is_active=True,
+        start_time__lte=timezone.now(),
+        end_time__gte=timezone.now()
+    ).first()
+    
+    upcoming_sessions = VoteSession.objects.filter(
+        start_time__gt=timezone.now()
+    ).order_by('start_time')[:3]
+    
+    past_sessions = VoteSession.objects.filter(
+        end_time__lt=timezone.now()
+    ).order_by('-end_time')[:3]
+    
+    return render(request, 'voting/home.html', {
+        'active_session': active_session,
+        'upcoming_sessions': upcoming_sessions,
+        'past_sessions': past_sessions
+    })
+
 @require_http_methods(["GET", "POST"])
 @login_required
 def vote(request):
