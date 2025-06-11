@@ -2,10 +2,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count
 from .models import MainCategory, NominationCategory, Nominee, Vote
 from .forms import NomineeForm, VoteForm
+
+@login_required
+def nominate_home(request):
+    stats = {
+        'total_categories': MainCategory.objects.count(),
+        'total_nominees': Nominee.objects.count(),
+        'approved_nominees': Nominee.objects.filter(approved=True).count(),
+        'total_votes': Vote.objects.count(),
+    }
+    recent_nominees = Nominee.objects.filter(approved=True).order_by('-id')[:5]
+    return render(request, 'nominations/home.html', {
+        'stats': stats,
+        'recent_nominees': recent_nominees
+    })
 
 @csrf_exempt
 def ussd_handler(request):
