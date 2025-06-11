@@ -8,7 +8,7 @@ from apps.messages_app.views import (
     generate_concatenated_rss_json,
     africastalking_webhook
 )
-from .views import homepage #profile, success
+from .views import homepage, profile, system_dashboard 
 
 urlpatterns = [
     path('', homepage, name='homepage'),
@@ -17,11 +17,10 @@ urlpatterns = [
     path('rss-json/', generate_rss_json, name='generate_rss_json'),
     path('rss-string/', generate_concatenated_rss_json, name='generate_concatenated_rss_json'),
     path('messages/', include('apps.messages_app.urls')),
-    # path('profile/', profile, name='profile'),
+    path('profile/', profile, name='profile'),
     path('accounts/login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('africastalking-webhook/', africastalking_webhook, name='africastalking_webhook'),
     path('nominations/', include('apps.nominations.urls')),
     path('voting/', include('apps.voting.urls')),
-    # path('success/', success, name='success'),
 ]
