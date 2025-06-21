@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Messages Dashboard{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h4 class="mb-0">Messages Dashboard</h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Messages</h5>
+                        <p class="display-4">{{ stats.total_messages }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title">Pending</h5>
+                        <p class="display-4">{{ stats.pending_messages }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Approved</h5>
+                        <p class="display-4">{{ stats.approved_messages }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Declined</h5>
+                        <p class="display-4">{{ stats.declined_messages }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Quick Actions</h5>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'messages_app:moderation_interface' %}" class="btn btn-outline-primary">
+                                <i class="bi bi-shield-check"></i> Moderation Interface
+                            </a>
+                            <a href="{% url 'messages_app:messages_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-list-ul"></i> All Messages
+                            </a>
+                            <a href="{% url 'generate_rss' %}" class="btn btn-outline-info">
+                                <i class="bi bi-rss"></i> RSS Feed
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Approved Messages</h5>
+                        <ul class="list-group">
+                            {% for message in recent_messages %}
+                            <li class="list-group-item">
+                                <strong>{{ message.from_number|slice:":5" }}*****</strong>: 
+                                {{ message.message_body|truncatechars:50 }}
+                                <span class="badge bg-success float-end">
+                                    {{ message.created_at|timesince }} ago
+                                </span>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">No recent approved messages</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+<!-- templates/nominations/results.html -->
+{% extends "base.html" %}
+
+{% block title %}Voting Results{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Voting Results</h4>
+            <div>
+                <a href="{% url 'voting:vote' %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-check-circle"></i> Vote Now
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if nominees %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Nominee</th>
+                        <th>Category</th>
+                        <th>Votes</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nominee in nominees %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ nominee.name }}</td>
+                        <td>{{ nominee.category }}</td>
+                        <td>{{ nominee.total_votes }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                    <div class="progress-bar bg-{% cycle 'primary' 'success' 'info' 'warning' 'danger' %}" 
+                                         role="progressbar" 
+                                         style="width: {{ nominee.vote_percentage }}%" 
+                                         aria-valuenow="{{ nominee.vote_percentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <span>{{ nominee.vote_percentage }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i> No voting results available yet.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="text-center mt-3">
+    <a href="{% url 'nominations:nominate' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-award"></i> Nominate Candidates
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh every 30 seconds
+setTimeout(function(){
+    window.location.reload();
+}, 30000);
+</script>
+{% endblock %}
