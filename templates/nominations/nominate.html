@@ -1,0 +1,64 @@
+<!-- templates/nominations/nominate.html -->
+{% extends "base.html" %}
+
+{% block title %}Nominate a Candidate{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">Nominate a Candidate</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label">Nominee Name</label>
+                        <input type="text" class="form-control" id="id_name" name="name" required>
+                        <div class="invalid-feedback">Please provide the nominee's name.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="id_category" class="form-label">Category</label>
+                        <select class="form-select" id="id_category" name="category" required>
+                            <option value="" selected disabled>Select a category</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.main_category.name }} - {{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">Please select a category.</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Submit Nomination
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'voting:vote' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-right"></i> Go to Voting
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

@@ -11,7 +11,7 @@ StreamSMS is a Django-based project designed to receive SMS messages sent to spe
 ## Prerequisites
 - Python 3.x
 - Django
-- MySQL
+- MySQL/Postgres
 - Africa's Talking API credentials
 
 ## Setup Instructions
