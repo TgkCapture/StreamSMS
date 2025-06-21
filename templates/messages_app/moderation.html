@@ -1,0 +1,97 @@
+<!-- templates/messages_app/moderation.html -->
+{% extends "base.html" %}
+
+{% block title %}Moderation Interface{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h4 class="mb-0">Moderation Interface</h4>
+    </div>
+    <div class="card-body">
+        {% if messages %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Sender</th>
+                        <th>Message</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in messages %}
+                    <tr>
+                        <td>{{ message.id }}</td>
+                        <td>{{ message.from_number }}</td>
+                        <td>{{ message.message_body|truncatechars:100 }}</td>
+                        <td>{{ message.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <div class="d-flex">
+                                <form method="post" action="{% url 'messages_app:approve_message' message.id %}" class="me-2">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="bi bi-check"></i> Approve
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'messages_app:decline_message' message.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-x"></i> Decline
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if messages.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ messages.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in messages.paginator.page_range %}
+                    {% if messages.number == num %}
+                        <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% elif num > messages.number|add:'-3' and num < messages.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if messages.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ messages.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ messages.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% else %}
+        <div class="alert alert-success text-center">
+            <i class="bi bi-check-circle"></i> No messages pending moderation. Great job!
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

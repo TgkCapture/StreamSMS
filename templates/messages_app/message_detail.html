@@ -1,0 +1,74 @@
+<!-- templates/messages_app/message_detail.html -->
+{% extends "base.html" %}
+
+{% block title %}Message #{{ message.id }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Message Details</h4>
+                    <a href="{% url 'messages_app:messages_list' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th width="30%">ID</th>
+                                <td>{{ message.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Sender</th>
+                                <td>{{ message.from_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Message</th>
+                                <td>{{ message.message_body }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    {% if message.approved %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% elif message.declined %}
+                                        <span class="badge bg-danger">Declined</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Created At</th>
+                                <td>{{ message.created_at }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if not message.approved and not message.declined %}
+                <div class="d-flex justify-content-end mt-3">
+                    <form method="post" action="{% url 'messages_app:approve_message' message.id %}" class="me-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Approve
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'messages_app:decline_message' message.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Decline
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
