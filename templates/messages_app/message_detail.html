@@ -12,22 +12,35 @@
             <a href="{% url 'messages_app:messages_list' %}" class="btn btn-secondary btn-sm me-2">
                 <i class="fas fa-arrow-left me-1"></i> Back to List
             </a>
-            {% if not message.approved and not message.declined %}
-            <div class="btn-group btn-group-sm" role="group">
-                <form method="post" action="{% url 'messages_app:approve_message' message.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check-circle me-1"></i> Approve
-                    </button>
-                </form>
-                <form method="post" action="{% url 'messages_app:decline_message' message.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-times-circle me-1"></i> Decline
-                    </button>
-                </form>
+            <div class="btn-group" role="group">
+                {% if not message.approved and not message.declined %}
+                    <form method="post" action="{% url 'messages_app:toggle_message_status' message.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="approve">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn btn-success" data-status-action="approve">
+                            <i class="fas fa-check-circle me-1"></i> Approve
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'messages_app:toggle_message_status' message.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="decline">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn btn-danger" data-status-action="decline">
+                            <i class="fas fa-times-circle me-1"></i> Decline
+                        </button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'messages_app:toggle_message_status' message.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reset">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-undo me-1"></i> Reset Status
+                        </button>
+                    </form>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 
@@ -143,7 +156,7 @@
                                 {% if message.approved or message.declined %}
                                 <tr>
                                     <th>Moderated At</th>
-                                    <td>{{ message.moderated_at|date:"M d, Y H:i"|default:"Not available" }}</td>
+                                    <td>{{ message.moderated_at|date:"M d, Y H:i" }}</td>
                                 </tr>
                                 <tr>
                                     <th>Moderated By</th>

@@ -55,15 +55,19 @@
                             <td>{{ message.created_at|date:"M d, H:i" }}</td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <form method="post" action="{% url 'messages_app:approve_message' message.id %}" class="d-inline">
+                                    <form method="post" action="{% url 'messages_app:toggle_message_status' message.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Approve">
+                                        <input type="hidden" name="action" value="approve">
+                                        <input type="hidden" name="next" value="{{ request.path }}">
+                                        <button type="submit" class="btn btn-success btn-sm" data-status-action="approve" data-bs-toggle="tooltip" title="Approve">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </form>
-                                    <form method="post" action="{% url 'messages_app:decline_message' message.id %}" class="d-inline">
+                                    <form method="post" action="{% url 'messages_app:toggle_message_status' message.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Decline">
+                                        <input type="hidden" name="action" value="decline">
+                                        <input type="hidden" name="next" value="{{ request.path }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" data-status-action="decline" data-bs-toggle="tooltip" title="Decline">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>

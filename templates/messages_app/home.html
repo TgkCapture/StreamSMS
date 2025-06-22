@@ -150,4 +150,54 @@
         </div>
     </div>
 </div>
+
+<!-- Status Change Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Status Change</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to <span id="actionText"></span> this message?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="statusForm" method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="">
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize status change modal
+    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+    
+    // Handle status change buttons
+    document.querySelectorAll('[data-status-action]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const action = this.getAttribute('data-status-action');
+            const form = this.closest('form');
+            
+            // Update modal content
+            document.getElementById('actionText').textContent = action;
+            document.getElementById('statusForm').action = form.action;
+            document.getElementById('statusForm').querySelector('input[name="action"]').value = action;
+            
+            // Show modal
+            statusModal.show();
+        });
+    });
+});
+</script>
 {% endblock %}
