@@ -1,5 +1,5 @@
 # apps/messages_app/views.py
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
@@ -19,20 +19,19 @@ PHONE_MASK_FORMAT = "{}{}{}** ** {}{}"  # First 3 visible, then mask, last 2 vis
 @login_required
 def messages_home(request):
     """Dashboard view with message statistics"""
-    now = timezone.now()
-    time_threshold = now - timedelta(days=7)
-    
     stats = {
-        'total': Message.objects.count(),
-        'pending': Message.objects.filter(approved=False, declined=False).count(),
-        'approved': Message.objects.filter(approved=True).count(),
-        'declined': Message.objects.filter(declined=True).count(),
-        'recent_activity': Message.objects.filter(
-            created_at__gte=time_threshold
-        ).values('created_at__date').annotate(count=Count('id')).order_by('-created_at__date'),
+        'total_messages': Message.objects.count(),
+        'pending_messages': Message.objects.filter(approved=False, declined=False).count(),
+        'approved_messages': Message.objects.filter(approved=True).count(),
+        'declined_messages': Message.objects.filter(declined=True).count(),
     }
-    return render(request, 'messages_app/home.html', {'stats': stats})
-
+  
+    recent_messages = Message.objects.filter(approved=True).order_by('-created_at')[:5]
+    
+    return render(request, 'messages_app/home.html', {
+        'stats': stats,
+        'recent_messages': recent_messages
+    })
 @csrf_exempt
 def africastalking_webhook(request):
     """Webhook for Africa's Talking SMS API"""
@@ -199,22 +198,23 @@ def messages_list(request):
     """View all messages with filtering options"""
     status_filter = request.GET.get('status', 'all')
     search_query = request.GET.get('q', '')
-    
+  
     messages_list = Message.objects.all().order_by('-created_at')
-    
+
     if status_filter == 'pending':
         messages_list = messages_list.filter(approved=False, declined=False)
     elif status_filter == 'approved':
         messages_list = messages_list.filter(approved=True)
     elif status_filter == 'declined':
         messages_list = messages_list.filter(declined=True)
-    
+ 
     if search_query:
         messages_list = messages_list.filter(
             Q(message_body__icontains=search_query) |
             Q(from_number__icontains=search_query)
         )
     
+    # Pagination
     paginator = Paginator(messages_list, MESSAGES_PER_PAGE)
     page_number = request.GET.get('page')
     
@@ -226,7 +226,7 @@ def messages_list(request):
         messages = paginator.page(paginator.num_pages)
     
     return render(request, 'messages_app/messages_list.html', {
-        'messages': messages,
+        'messages_list': messages,
         'status_filter': status_filter,
         'search_query': search_query
     })
@@ -235,6 +235,12 @@ def messages_list(request):
 def message_detail(request, message_id):
     """Detailed view of a single message"""
     message = get_object_or_404(Message, id=message_id)
+    
+    if (message.approved or message.declined) and not message.moderated_by:
+        message.moderated_by = request.user
+        message.moderated_at = timezone.now()
+        message.save()
+    
     return render(request, 'messages_app/message_detail.html', {
         'message': message,
         'masked_number': mask_phone_number(message.from_number)

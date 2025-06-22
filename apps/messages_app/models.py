@@ -1,5 +1,6 @@
 # apps/messages_app/models.py
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from simple_history.models import HistoricalRecords
 
