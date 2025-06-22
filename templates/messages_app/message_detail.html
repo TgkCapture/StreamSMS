@@ -1,72 +1,165 @@
 <!-- templates/messages_app/message_detail.html -->
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Message #{{ message.id }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Message Details</h4>
-                    <a href="{% url 'messages_app:messages_list' %}" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Message Details</h1>
+        <div class="d-flex">
+            <a href="{% url 'messages_app:messages_list' %}" class="btn btn-secondary btn-sm me-2">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+            {% if not message.approved and not message.declined %}
+            <div class="btn-group btn-group-sm" role="group">
+                <form method="post" action="{% url 'messages_app:approve_message' message.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check-circle me-1"></i> Approve
+                    </button>
+                </form>
+                <form method="post" action="{% url 'messages_app:decline_message' message.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times-circle me-1"></i> Decline
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Message Content</h6>
+                    <span class="badge bg-{% if message.approved %}success{% elif message.declined %}danger{% else %}warning{% endif %}">
+                        {% if message.approved %}Approved{% elif message.declined %}Declined{% else %}Pending{% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5 class="text-gray-800">{{ message.message_body }}</h5>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-left-primary shadow h-100 py-2 mb-4">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Sender Number</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {{ message.from_number|slice:":5" }}*****
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-phone fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-left-info shadow h-100 py-2 mb-4">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Received</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {{ message.created_at|date:"M d, Y H:i" }}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if message.approved or message.declined %}
+                    <div class="card border-left-secondary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                        Moderation Details</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% if message.moderated_by %}
+                                        Moderated by {{ message.moderated_by.get_full_name|default:message.moderated_by.username }}
+                                        on {{ message.moderated_at|date:"M d, Y H:i" }}
+                                        {% else %}
+                                        Moderation details not available
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-user-shield fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <tbody>
-                            <tr>
-                                <th width="30%">ID</th>
-                                <td>{{ message.id }}</td>
-                            </tr>
-                            <tr>
-                                <th>Sender</th>
-                                <td>{{ message.from_number }}</td>
-                            </tr>
-                            <tr>
-                                <th>Message</th>
-                                <td>{{ message.message_body }}</td>
-                            </tr>
-                            <tr>
-                                <th>Status</th>
-                                <td>
-                                    {% if message.approved %}
-                                        <span class="badge bg-success">Approved</span>
-                                    {% elif message.declined %}
-                                        <span class="badge bg-danger">Declined</span>
-                                    {% else %}
-                                        <span class="badge bg-warning text-dark">Pending</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Created At</th>
-                                <td>{{ message.created_at }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Message Metadata</h6>
                 </div>
-                
-                {% if not message.approved and not message.declined %}
-                <div class="d-flex justify-content-end mt-3">
-                    <form method="post" action="{% url 'messages_app:approve_message' message.id %}" class="me-2">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                    </form>
-                    <form method="post" action="{% url 'messages_app:decline_message' message.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-x-circle"></i> Decline
-                        </button>
-                    </form>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>Message ID</th>
+                                    <td>{{ message.id }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>
+                                        <span class="badge bg-{% if message.approved %}success{% elif message.declined %}danger{% else %}warning{% endif %}">
+                                            {% if message.approved %}Approved{% elif message.declined %}Declined{% else %}Pending{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Source</th>
+                                    <td>{{ message.source|upper }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Created At</th>
+                                    <td>{{ message.created_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                                {% if message.approved or message.declined %}
+                                <tr>
+                                    <th>Moderated At</th>
+                                    <td>{{ message.moderated_at|date:"M d, Y H:i"|default:"Not available" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Moderated By</th>
+                                    <td>
+                                        {% if message.moderated_by %}
+                                            {{ message.moderated_by.get_full_name|default:message.moderated_by.username }}
+                                        {% else %}
+                                            System
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>

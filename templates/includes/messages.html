@@ -1,11 +1,50 @@
 <!-- templates/includes/messages.html -->
 {% if messages %}
-    <div class="mb-4">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
+<div class="mb-4 messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeIn" 
+         role="alert"
+         data-autohide="{% if message.tags == 'error' %}false{% else %}true{% endif %}">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide success messages after 5 seconds
+    const alerts = document.querySelectorAll('.alert[data-autohide="true"]');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert) {
+                alert.classList.add('animate__fadeOut');
+                alert.addEventListener('animationend', () => {
+                    alert.remove();
+                });
+            }
+        }, 3000);
+    });
+    
+    // Handle manual dismissal with fade out
+    document.querySelectorAll('.alert .btn-close').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const alert = this.closest('.alert');
+            alert.classList.add('animate__fadeOut');
+            alert.addEventListener('animationend', () => {
+                alert.remove();
+            });
+        });
+    });
+    
+    // Limit number of visible messages
+    const messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer && messagesContainer.children.length > 3) {
+        Array.from(messagesContainer.children)
+            .slice(3)
+            .forEach(el => el.remove());
+    }
+});
+</script>
 {% endif %}

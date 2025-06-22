@@ -1,125 +1,171 @@
 <!-- templates/messages_app/messages_list.html -->
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Messages List{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <div class="d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">All Messages</h4>
-            <div>
-                <a href="{% url 'messages_app:moderation_interface' %}" class="btn btn-sm btn-primary">
-                    <i class="bi bi-shield-check"></i> Moderation
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">All Messages</h1>
+        <div class="d-flex">
+            <a href="{% url 'messages_app:moderation_interface' %}" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-shield-alt me-1"></i> Moderation
+            </a>
+            <a href="{% url 'messages_app:messages_home' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-home me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Messages</h6>
+            <div class="dropdown no-arrow">
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" 
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-filter fa-sm fa-fw text-gray-400"></i> Filter
                 </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownMenuLink">
+                    <li><a class="dropdown-item" href="?status=all">All Messages</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="?status=pending">Pending Only</a></li>
+                    <li><a class="dropdown-item" href="?status=approved">Approved Only</a></li>
+                    <li><a class="dropdown-item" href="?status=declined">Declined Only</a></li>
+                </ul>
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        {% if messages_list %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Content</th>
-                        <th>Sender</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for message in messages_list %}
-                    <tr>
-                        <td>{{ message.id }}</td>
-                        <td>
-                            <a href="{% url 'messages_app:message_detail' message.id %}" class="text-decoration-none">
-                                {{ message.message_body|truncatechars:50 }}
-                            </a>
-                        </td>
-                        <td>{{ message.from_number }}</td>
-                        <td>
-                            {% if message.approved %}
-                                <span class="badge bg-success">Approved</span>
-                            {% elif message.declined %}
-                                <span class="badge bg-danger">Declined</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ message.created_at|date:"M d, Y H:i" }}</td>
-                        <td>
-                            <div class="d-flex">
-                                <a href="{% url 'messages_app:message_detail' message.id %}" class="btn btn-sm btn-outline-primary me-1">
-                                    <i class="bi bi-eye"></i>
+        <div class="card-body">
+            {% if messages_list %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="messagesTable" width="100%" cellspacing="0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Content</th>
+                            <th>Sender</th>
+                            <th>Status</th>
+                            <th>Received</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages_list %}
+                        <tr>
+                            <td>{{ message.id }}</td>
+                            <td>
+                                <a href="{% url 'messages_app:message_detail' message.id %}" class="text-decoration-none">
+                                    {{ message.message_body|truncatechars:60 }}
                                 </a>
-                                {% if not message.approved %}
-                                <form method="post" action="{% url 'messages_app:approve_message' message.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-success me-1">
-                                        <i class="bi bi-check"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
-                                {% if not message.declined %}
-                                <form method="post" action="{% url 'messages_app:decline_message' message.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-x"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                            </td>
+                            <td>{{ message.from_number|slice:":5" }}*****</td>
+                            <td>
+                                <span class="badge bg-{% if message.approved %}success{% elif message.declined %}danger{% else %}warning{% endif %}">
+                                    {% if message.approved %}Approved{% elif message.declined %}Declined{% else %}Pending{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ message.created_at|date:"M d, Y" }}</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'messages_app:message_detail' message.id %}" class="btn btn-info btn-sm" data-bs-toggle="tooltip" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if not message.approved %}
+                                    <form method="post" action="{% url 'messages_app:approve_message' message.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if not message.declined %}
+                                    <form method="post" action="{% url 'messages_app:decline_message' message.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Decline">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                {% if messages_list.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1" aria-label="First">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ messages_list.previous_page_number }}" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-                
-                {% for num in messages_list.paginator.page_range %}
-                    {% if messages_list.number == num %}
-                        <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                    {% elif num > messages_list.number|add:'-3' and num < messages_list.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if messages_list.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ messages_list.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
                     {% endif %}
-                {% endfor %}
-                
-                {% if messages_list.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ messages_list.next_page_number }}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ messages_list.paginator.num_pages }}" aria-label="Last">
-                        <span aria-hidden="true">&raquo;&raquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% else %}
-        <div class="alert alert-info text-center">
-            <i class="bi bi-info-circle"></i> No messages available.
+                    
+                    {% for num in messages_list.paginator.page_range %}
+                        {% if messages_list.number == num %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% elif num > messages_list.number|add:'-3' and num < messages_list.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if messages_list.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ messages_list.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ messages_list.paginator.num_pages }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-4x text-gray-300 mb-3"></i>
+                <h4 class="text-gray-800">No messages found</h4>
+                <p class="text-muted">There are no messages matching your criteria.</p>
+                <a href="?status=all" class="btn btn-primary mt-3">
+                    <i class="fas fa-sync-alt me-1"></i> Reset Filters
+                </a>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+    
+    // Initialize DataTable
+    $('#messagesTable').DataTable({
+        "paging": false,
+        "searching": true,
+        "info": false,
+        "ordering": true,
+        "order": [[0, "desc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": [5] }
+        ]
+    });
+});
+</script>
 {% endblock %}
