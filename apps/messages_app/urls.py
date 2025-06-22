@@ -11,7 +11,8 @@ from .views import (
     generate_rss,
     generate_rss_json,
     generate_concatenated_rss_json,
-    bulk_action
+    bulk_action,
+    toggle_message_status
 )
 
 app_name = 'messages_app'
@@ -25,6 +26,7 @@ urlpatterns = [
     path('approve/<int:message_id>/', approve_message, name='approve_message'),
     path('decline/<int:message_id>/', decline_message, name='decline_message'),
     path('bulk-action/', bulk_action, name='bulk_action'),
+    path('toggle-status/<int:message_id>/', toggle_message_status, name='toggle_message_status'),
     
     # Message Views
     path('all-messages/', messages_list, name='messages_list'),

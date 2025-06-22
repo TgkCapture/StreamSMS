@@ -75,6 +75,27 @@ class Message(models.Model):
             return "declined"
         return "pending"
 
+    def approve(self, user):
+        self.approved = True
+        self.declined = False
+        self.moderated_by = user
+        self.moderated_at = timezone.now()
+        self.save()
+    
+    def decline(self, user):
+        self.approved = False
+        self.declined = True
+        self.moderated_by = user
+        self.moderated_at = timezone.now()
+        self.save()
+    
+    def reset_status(self):
+        self.approved = False
+        self.declined = False
+        self.moderated_by = None
+        self.moderated_at = None
+        self.save()    
+
     def save(self, *args, **kwargs):
         if self.approved or self.declined:
             if not self.moderated_at:

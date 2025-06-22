@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.db.models import Count, Q
 from .models import Message
+from django.contrib import messages as django_messages
 import africastalking
 from datetime import timedelta
 
@@ -281,3 +282,24 @@ def bulk_action(request):
             django_messages.error(request, "Invalid action")
         
     return redirect('messages_app:moderation_interface')
+
+@login_required
+def toggle_message_status(request, message_id):
+    message = get_object_or_404(Message, id=message_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'approve':
+            message.approve(request.user)
+            django_messages.success(request, "Message approved successfully")
+        elif action == 'decline':
+            message.decline(request.user)
+            django_messages.success(request, "Message declined successfully")
+        elif action == 'reset':
+            message.reset_status()
+            django_messages.success(request, "Message status reset to pending")
+        
+        return redirect(request.POST.get('next', 'messages_app:messages_list'))
+    
+    return redirect('messages_app:message_detail', message_id=message_id)
