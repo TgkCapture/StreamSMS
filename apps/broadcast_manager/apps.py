@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class BroadcastManagerConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'broadcast_manager'
+    name = 'apps.broadcast_manager'

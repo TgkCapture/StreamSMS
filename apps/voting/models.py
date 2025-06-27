@@ -1,8 +1,10 @@
 # apps/voting/models.py
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
 from apps.nominations.models import Nominee
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class VoteSession(models.Model):
     name = models.CharField(max_length=100, unique=True)
