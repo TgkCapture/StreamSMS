@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'broadcast_manager.User'
 
 AUTHENTICATION_BACKENDS = [
-    'broadcast_manager.backends.RoleBasedAuthBackend',
+    'apps.broadcast_manager.backends.RoleBasedAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -57,7 +57,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
-    'broadcast_manager.middleware.ActivityTrackingMiddleware',
+    'apps.broadcast_manager.middleware.ActivityTrackingMiddleware',
 ]
 
 ROOT_URLCONF = 'StreamSMS.urls'
