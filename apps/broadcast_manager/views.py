@@ -11,7 +11,7 @@ from .forms import PublicRegistrationForm, StaffCreationForm
 from .models import User, ActivityLog
 
 class CustomLoginView(LoginView):
-    template_name = 'broadcast_manager/auth/login.html'
+    template_name = 'accounts/login.html'
     redirect_authenticated_user = True
     
     def get_success_url(self):
