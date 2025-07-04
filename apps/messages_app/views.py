@@ -121,10 +121,9 @@ def messages_list(request):
     paginator = Paginator(messages_list, 13)
 
     page_number = request.GET.get('page')
-    messages = paginator.get_page(page_number)
+    messages_list = paginator.get_page(page_number)  
     
-    return render(request, 'messages_app/messages_list.html', {'messages': messages})
-
+    return render(request, 'messages_app/messages_list.html', {'messages_list': messages_list})
 @login_required
 def message_detail(request, id):
     message = get_object_or_404(Message, id=id)
